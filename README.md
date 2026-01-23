@@ -160,3 +160,13 @@ pio test -v
 ## Future Ideas
 
 * Incorporate [WiFi Manager](https://github.com/tzapu/WiFiManager) for settings
+
+## A fatal error occurred: Failed to connect to ESP32: No serial data received.
+
+Run the pio command:
+
+```
+pio run -e inkplate10v2
+```
+
+When the text "Connecting........" appears, press the I/O button on the left of the inkplate for 1 or 2 seconds, and release. The upload should start just after.
