@@ -189,7 +189,7 @@ void delaySleep(uint seconds);
 #define MIN_ACTIVITY_RESTART_SECS 5
 
 // network settings
-#define WIFI_TIMEOUT_MS (20 * SECOND) // 20 second WiFi connection timeout
+#define WIFI_TIMEOUT_MS (10 * SECOND) // 10 second WiFi connection timeout (reduced from 20s for power saving)
 #define WIFI_RECOVER_TIME_MS (30 * SECOND)    // Wait 30 seconds after a failed connection attempt
 
 // input debounce

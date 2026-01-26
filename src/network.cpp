@@ -86,6 +86,9 @@ void keepWiFiAlive(void *parameter)
         }
 
         Serial.println("[WIFI] Connected: " + WiFi.localIP().toString());
+        // Enable WiFi power saving mode to reduce battery consumption
+        WiFi.setSleep(WIFI_PS_MIN_MODEM);
+        Serial.println("[WIFI] Power saving mode enabled");
         printDebugStackSpace();
     }
 }
