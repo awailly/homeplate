@@ -125,6 +125,7 @@ void printChipInfo();
 void lowBatteryCheck();
 void printDebugStackSpace();
 void displayBatteryWarning();
+void displayBatteryStatus();
 void printDebug(const char *s);
 
 // network

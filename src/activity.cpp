@@ -182,6 +182,9 @@ void runActivities(void *params)
         default:
             Serial.printf("[ACTIVITY][ERROR] runActivities() unhandled Activity: %d\n", activityNext);
         }
+        // display battery status bar
+        displayBatteryStatus();
+        
         // check and display a low battery warning if needed
         displayBatteryWarning();
 

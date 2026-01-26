@@ -174,3 +174,59 @@ void printDebug(const char *s)
         Serial.printf("[DEBUG]%s\n", s);
     }
 }
+
+// Display battery status bar on bottom left of screen
+// NOTE: I2C & display locks MUST NOT be held by caller.
+void displayBatteryStatus()
+{
+    Serial.println("[BATTERY] displayBatteryStatus() called");
+    
+    static const uint8_t buf_size = 10;
+    static char statusBuffer[buf_size];
+    
+    i2cStart();
+    double voltage = display.readBattery();
+    int percent = getBatteryPercent(voltage);
+    snprintf(statusBuffer, buf_size, "%d%%", percent);
+    
+    // Bar dimensions
+    const int16_t barWidth = 50;
+    const int16_t barHeight = 12;
+    const int16_t margin = 10;
+    const int16_t textGap = 5;
+    
+    // Position: bottom left
+    int16_t barX = margin;
+    int16_t barY = E_INK_HEIGHT - margin - barHeight;
+    
+    // Calculate filled portion
+    int16_t filledWidth = (barWidth * percent) / 100;
+    
+    displayStart();
+    display.selectDisplayMode(INKPLATE_1BIT);
+    
+    // Draw empty portion (white background)
+    display.fillRect(barX, barY, barWidth, barHeight, WHITE);
+    
+    // Draw filled portion (black)
+    if (filledWidth > 0) {
+        display.fillRect(barX, barY, filledWidth, barHeight, BLACK);
+    }
+    
+    // Clear and draw percentage text
+    // First clear the text area with a white rectangle
+    display.fillRect(barX + barWidth + textGap - 2, barY - 2, 50, barHeight + 4, WHITE);
+    
+    display.setFont(&Roboto_12);
+    display.setTextColor(BLACK, WHITE);
+    display.setTextSize(1);
+    display.setCursor(barX + barWidth + textGap, barY + barHeight - 2);
+    display.print(statusBuffer);
+    
+    Serial.printf("[BATTERY] Drawing battery bar %d%% at (%d, %d)\n", percent, barX, barY);
+    display.partialUpdate(sleepBoot);
+    displayEnd();
+    i2cEnd();
+    
+    Serial.println("[BATTERY] displayBatteryStatus() done");
+}
