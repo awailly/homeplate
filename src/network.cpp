@@ -3,6 +3,7 @@
 #include "homeplate.h"
 
 #define WIFI_TASK_PRIORITY 2
+#define WIFI_MAX_RETRIES 5 // Maximum WiFi connection attempts before giving up
 
 // static addresses
 IPAddress ip, gateway, subnet, dns;
@@ -47,16 +48,18 @@ void WiFiStationDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void keepWiFiAlive(void *parameter)
 {
     printDebug("[WIFI] loop start...");
+    int retryCount = 0;
     while (true)
     {
         printDebug("[WIFI] loop...");
         if (WiFi.status() == WL_CONNECTED)
         {
+            retryCount = 0; // Reset retry count on successful connection
             vTaskDelay(10000 / portTICK_PERIOD_MS);
             continue;
         }
 
-        Serial.println("[WIFI] Connecting...");
+        Serial.printf("[WIFI] Connecting (attempt %d/%d)...\n", retryCount + 1, WIFI_MAX_RETRIES);
         WiFi.setHostname(HOSTNAME); // only works with DHCP....
         WiFi.mode(WIFI_STA);
 #ifdef STATIC_IP
@@ -77,9 +80,17 @@ void keepWiFiAlive(void *parameter)
         // sleep for a while and then retry.
         if (WiFi.status() != WL_CONNECTED)
         {
-            Serial.println("[WIFI] FAILED");
+            retryCount++;
+            Serial.printf("[WIFI] FAILED (attempt %d/%d)\n", retryCount, WIFI_MAX_RETRIES);
             displayStatusMessage("WiFi failed!");
             wifiFailed = true;
+            
+            // Give up after max retries to save battery
+            if (retryCount >= WIFI_MAX_RETRIES) {
+                Serial.printf("[WIFI] Giving up after %d attempts\n", WIFI_MAX_RETRIES);
+                break; // Exit the task, let sleep happen
+            }
+            
             // if sleep is enabled, we'll likely sleep before this continues
             vTaskDelay(WIFI_RECOVER_TIME_MS / portTICK_PERIOD_MS);
             continue;
@@ -236,9 +247,20 @@ uint8_t* httpGet(const char* url, std::map<String, String> *headers, int32_t* de
     int32_t len = total;
 
     uint8_t buff[512] = {0};
+    unsigned long downloadStartTime = millis();
+    const unsigned long downloadTimeout = timeout_sec * 1000UL; // Convert to milliseconds
 
     WiFiClient* stream = http.getStreamPtr();
     while (http.connected() && (len > 0 || len == -1)) {
+        // Check for download timeout
+        if (millis() - downloadStartTime > downloadTimeout) {
+            Serial.printf("[NET] Download timeout after %lu ms\n", downloadTimeout);
+            free(buffer);
+            http.end();
+            WiFi.setSleep(sleep);
+            return nullptr;
+        }
+        
         size_t size = stream->available();
 
         if (size) {
@@ -250,6 +272,9 @@ uint8_t* httpGet(const char* url, std::map<String, String> *headers, int32_t* de
             buffPtr += c;
         } else if (len == -1) {
             len = 0;
+        } else {
+            // No data available, yield to other tasks
+            vTaskDelay(10 / portTICK_PERIOD_MS);
         }
     }
 

@@ -82,8 +82,13 @@ void lowBatteryCheck()
     double voltage = display.readBattery();
     i2cEnd();
 
-    // if voltage was < 1, it was a bad reading.
-    if (voltage > 1 && voltage <= BATTERY_VOLTAGE_WARNING_SLEEP)
+    // Validate battery reading: < 1V or > 5V indicates a bad reading
+    if (voltage < 1.0 || voltage > 5.0) {
+        Serial.printf("[MAIN] Invalid battery reading: %.2fV, ignoring\n", voltage);
+        return;
+    }
+
+    if (voltage <= BATTERY_VOLTAGE_WARNING_SLEEP)
     {
         Serial.printf("[MAIN] voltage %.2f <= min %.2f, powering down\n", voltage, BATTERY_VOLTAGE_WARNING_SLEEP);
         displayStatusMessage("Low Battery");
