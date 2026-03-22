@@ -188,11 +188,18 @@ void displayBatteryStatus()
     
     static const uint8_t buf_size = 10;
     static char statusBuffer[buf_size];
+    static const uint8_t refresh_buf_size = 20;
+    static char refreshBuffer[refresh_buf_size];
     
     i2cStart();
     double voltage = display.readBattery();
     int percent = getBatteryPercent(voltage);
     snprintf(statusBuffer, buf_size, "%d%%", percent);
+    
+    // Build refresh timer string
+    uint32_t sleepSec = getSleepDuration();
+    uint32_t sleepMin = (sleepSec + 59) / 60; // round up
+    snprintf(refreshBuffer, refresh_buf_size, "| %umin", sleepMin);
     
     // Bar dimensions
     const int16_t barWidth = 50;
@@ -228,7 +235,15 @@ void displayBatteryStatus()
     display.setCursor(barX + barWidth + textGap, barY + barHeight - 2);
     display.print(statusBuffer);
     
-    Serial.printf("[BATTERY] Drawing battery bar %d%% at (%d, %d)\n", percent, barX, barY);
+    // Get cursor position after battery text to place refresh timer
+    int16_t refreshX = display.getCursorX() + textGap;
+    
+    // Clear and draw refresh timer text
+    display.fillRect(refreshX - 2, barY - 2, 80, barHeight + 4, WHITE);
+    display.setCursor(refreshX, barY + barHeight - 2);
+    display.print(refreshBuffer);
+    
+    Serial.printf("[BATTERY] Drawing battery bar %d%% at (%d, %d), refresh in %umin\n", percent, barX, barY, sleepMin);
     display.partialUpdate(sleepBoot);
     displayEnd();
     i2cEnd();
