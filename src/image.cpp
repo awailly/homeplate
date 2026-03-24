@@ -274,7 +274,7 @@ bool drawImageFromBuffer(uint8_t *buff, size_t size, bool center) {
     displayEnd();
     i2cEnd();
     Serial.println("[IMAGE] displaying done.");
-    return true;
+    return good;
 }
 
 // returns height

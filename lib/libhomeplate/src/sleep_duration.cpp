@@ -1,5 +1,8 @@
 #include "sleep_duration.h"
 
+// Note: Day-of-week ranges must not wrap around the week boundary (e.g., start_dow=6, end_dow=2
+// is not supported). Slots are matched in order; the first matching slot wins.
+// Ensure slots are non-overlapping or ordered by priority.
 uint getSleepDuration(SleepScheduleSlot sleepSchedule[], size_t size, TimeInfo time, SleepDefaults defaults, bool doQuickSleep)
 {
     if (doQuickSleep) {
