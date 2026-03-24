@@ -207,6 +207,14 @@ uint8_t* httpGet(const char* url, std::map<String, String> *headers, int32_t* de
 
     int httpCode = http.GET();
 
+    // Check HTTP status before processing the body
+    if (httpCode != HTTP_CODE_OK) {
+        Serial.printf("[NET] Non-200 response: %d from URL %s\n", httpCode, url);
+        http.end();
+        WiFi.setSleep(sleep);
+        return nullptr;
+    }
+
     int32_t size = http.getSize();
     if (size == -1)
         size = *defaultLen;
@@ -286,15 +294,6 @@ uint8_t* httpGet(const char* url, std::map<String, String> *headers, int32_t* de
             // No data available, yield to other tasks
             vTaskDelay(10 / portTICK_PERIOD_MS);
         }
-    }
-
-    if (httpCode != HTTP_CODE_OK) {
-        Serial.printf("[NET] Non-200 response: %d from URL %s\n", httpCode, url);
-        if (size) {
-            Serial.printf("[NET] HTTP response buffer: \n\n%s\n\n", buffer);
-        }
-        free(buffer);
-        buffer = 0;
     }
 
     http.end();

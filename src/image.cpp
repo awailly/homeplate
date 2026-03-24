@@ -35,14 +35,14 @@ imageInfo getImageInfo(uint8_t *buff, size_t size) {
         case ImageType::PNG:
             if (size >= 24) {
                 // PNG IHDR chunk starts at byte 8, width at bytes 16-19, height at bytes 20-23
-                result.width = (buff[16] << 24) | (buff[17] << 16) | (buff[18] << 8) | buff[19];
-                result.height = (buff[20] << 24) | (buff[21] << 16) | (buff[22] << 8) | buff[23];
+                result.width = ((uint32_t)buff[16] << 24) | ((uint32_t)buff[17] << 16) | ((uint32_t)buff[18] << 8) | buff[19];
+                result.height = ((uint32_t)buff[20] << 24) | ((uint32_t)buff[21] << 16) | ((uint32_t)buff[22] << 8) | buff[23];
             }
             break;
             
         case ImageType::JPEG:
             // Find SOF (Start of Frame) marker
-            for (size_t i = 2; i < size - 9; i++) {
+            for (size_t i = 2; i + 9 < size; i++) {
                 if (buff[i] == 0xFF && (buff[i+1] == 0xC0 || buff[i+1] == 0xC2)) {
                     // SOF marker found, dimensions are at offset +5 (height) and +7 (width)
                     result.height = (buff[i+5] << 8) | buff[i+6];
@@ -55,8 +55,8 @@ imageInfo getImageInfo(uint8_t *buff, size_t size) {
         case ImageType::BMP:
             if (size >= 26) {
                 // BMP width is at bytes 18-21, height at bytes 22-25
-                result.width = buff[18] | (buff[19] << 8) | (buff[20] << 16) | (buff[21] << 24);
-                result.height = buff[22] | (buff[23] << 8) | (buff[24] << 16) | (buff[25] << 24);
+                result.width = buff[18] | ((uint32_t)buff[19] << 8) | ((uint32_t)buff[20] << 16) | ((uint32_t)buff[21] << 24);
+                result.height = buff[22] | ((uint32_t)buff[23] << 8) | ((uint32_t)buff[24] << 16) | ((uint32_t)buff[25] << 24);
                 // BMP height can be negative (top-down), take absolute value
                 if (result.height < 0) result.height = -result.height;
             }
@@ -71,7 +71,7 @@ imageInfo getImageInfo(uint8_t *buff, size_t size) {
                     result.height = ((buff[28] | (buff[29] << 8)) & 0x3FFF);
                 } else if (buff[12] == 'V' && buff[13] == 'P' && buff[14] == '8' && buff[15] == 'L') {
                     // VP8L format - dimensions start at byte 21
-                    uint32_t bits = buff[21] | (buff[22] << 8) | (buff[23] << 16) | (buff[24] << 24);
+                    uint32_t bits = buff[21] | ((uint32_t)buff[22] << 8) | ((uint32_t)buff[23] << 16) | ((uint32_t)buff[24] << 24);
                     result.width = (bits & 0x3FFF) + 1;
                     result.height = ((bits >> 14) & 0x3FFF) + 1;
                 }

@@ -187,7 +187,7 @@ void showGradient(int _selected)
 int getWaveformNumer()
 {
     // Buffer for the serial data.
-    char _buffer[20];
+    char _buffer[20] = {0};
 
     // Variable for array indexing (serial buffer).
     int _n = 0;

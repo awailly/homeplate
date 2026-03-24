@@ -73,9 +73,10 @@ void gotoSleepNow()
 
 void delaySleep(uint seconds)
 {
-    unsigned long timeLeft = sleepTime - millis();
+    unsigned long now = millis();
+    unsigned long timeLeft = (sleepTime > now) ? (sleepTime - now) : 0;
     // if the bumped time is farther in the future than our current sleep time
-    int ms = seconds * SECOND;
+    unsigned long ms = (unsigned long)seconds * SECOND;
     if (ms > timeLeft)
     {
         Serial.printf("[SLEEP] delaying sleep for %u seconds\n", seconds);
