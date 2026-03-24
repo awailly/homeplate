@@ -38,7 +38,7 @@
 #define NTP_SERVER "NTP Server IP"
 
 // How often to re-sync the clock to NTP
-#define NTP_SYNC_INTERVAL (24*60)/TIME_TO_SLEEP_MIN // ~ once a day when updating every TIME_TO_SLEEP_MIN minutes
+#define NTP_SYNC_INTERVAL ((24*60)/TIME_TO_SLEEP_MIN) // ~ once a day when updating every TIME_TO_SLEEP_MIN minutes
 
 // URL of PNG image to display
 #define IMAGE_URL "HTTP URL of dashboard screenshot to display"

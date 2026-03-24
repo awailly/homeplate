@@ -57,11 +57,15 @@ void displayMessage(const char *m)
     FontSizing font = findFontSizeFit(message, E_INK_WIDTH, E_INK_HEIGHT);
     display.setFont(font.font);
 
+    // Work on a local copy to avoid strtok_r mutating the global message buffer
+    char localMessage[MESSAGE_BUFFER_SIZE];
+    strlcpy(localMessage, message, MESSAGE_BUFFER_SIZE);
+
     char *savePtr;
     char *pch = NULL;
-    pch = strtok_r(message, "\n", &savePtr);
+    pch = strtok_r(localMessage, "\n", &savePtr);
     uint line = 0;
-    uint16_t w, h = 0;
+    uint16_t w = 0, h = 0;
     int16_t y = 0;
     int16_t x = 0;
     int16_t x1b, y1b;                                                 // unused

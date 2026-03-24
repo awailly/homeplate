@@ -218,7 +218,7 @@ void delaySleep(uint seconds);
 
 // Sleep
 #define SLEEP_TIMEOUT_SEC 15
-#define MAX_REFRESH_SEC 60*60*24 // 1 day
+#define MAX_REFRESH_SEC (60*60*24) // 1 day
 
 
 // Device Models (from Inkplate-Arduino-library/src/include/defines.h)
