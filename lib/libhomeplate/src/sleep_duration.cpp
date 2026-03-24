@@ -9,6 +9,11 @@ uint getSleepDuration(SleepScheduleSlot sleepSchedule[], size_t size, TimeInfo t
         return defaults.quickSleep;
     }
 
+    // Validate time values to guard against unset/negative RTC values
+    if (time.dow < 1 || time.dow > 7 || time.hour < 0 || time.hour > 23 || time.minute < 0 || time.minute > 59) {
+        return defaults.normalSleep;
+    }
+
     uint timeInMinutes = time.hour * 60 + time.minute;
 
     for (int i = 0; i < size; i++) {
