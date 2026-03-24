@@ -42,7 +42,7 @@
     TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};
     Timezone tz(usCDT, usCST);
 
-#elif defined TIMEZONE_ausET
+#elif defined TIMEZONE_usMT
     // US Mountain Time Zone (Denver, Salt Lake City)
     TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
     TimeChangeRule usMST = {"MST", First, Sun, Nov, 2, -420};
@@ -59,7 +59,7 @@
     TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};  // Standard time = UTC - 8 hours
     Timezone tz(usPDT, usPST);
 
-#elif defined TIMEZONE_ausET
+#elif defined TIMEZONE_NZ
     // New Zealand Time Zone
     TimeChangeRule nzSTD = {"NZST", First, Sun, Apr, 3, 720};   // UTC + 12 hours
     TimeChangeRule nzDST = {"NZDT", Last, Sun, Sep, 2, 780};    // UTC + 13 hours

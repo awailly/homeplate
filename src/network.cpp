@@ -266,6 +266,16 @@ uint8_t* httpGet(const char* url, std::map<String, String> *headers, int32_t* de
         if (size) {
             int c = stream->readBytes(
                 buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+            
+            // Bounds check: prevent writing past the allocated buffer
+            if (buffPtr + c > buffer + *defaultLen) {
+                Serial.println("[NET] Buffer overflow prevented: server sent more data than expected");
+                free(buffer);
+                http.end();
+                WiFi.setSleep(sleep);
+                return nullptr;
+            }
+            
             memcpy(buffPtr, buff, c);
 
             if (len > 0) len -= c;

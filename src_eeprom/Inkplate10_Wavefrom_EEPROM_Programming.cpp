@@ -235,11 +235,11 @@ int getWaveformNumer()
         // Try to parse it.
 
         // First check for the keyword for programming or show test image.
-        if (strstr("ok\r\n", _buffer) != NULL)
+        if (strstr(_buffer, "ok") != NULL)
         {
             return 255;
         }
-        else if (strstr("test\r\n", _buffer))
+        else if (strstr(_buffer, "test"))
         {
             return 254;
         }
